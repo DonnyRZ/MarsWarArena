@@ -1,0 +1,55 @@
+body {
+    margin: 0;
+}
+
+#crosshair {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* Prevents interference with mouse controls */
+    z-index: 1000; /* Ensures it stays above the Three.js canvas */
+}
+
+/* Container for crosshair segments */
+.crosshair-line {
+    position: absolute;
+    background-color: white; /* Bright core color */
+    box-shadow: 0 0 2px 1px black; /* Black outline for contrast */
+}
+
+/* Top segment */
+.crosshair-line:nth-child(1) {
+    width: 2px;
+    height: 10px;
+    left: -1px; /* Center horizontally */
+    top: -15px; /* Position above center with gap */
+}
+
+/* Bottom segment */
+.crosshair-line:nth-child(2) {
+    width: 2px;
+    height: 10px;
+    left: -1px; /* Center horizontally */
+    top: 5px; /* Position below center with gap */
+}
+
+/* Left segment */
+.crosshair-line:nth-child(3) {
+    width: 10px;
+    height: 2px;
+    left: -15px; /* Position left of center with gap */
+    top: -1px; /* Center vertically */
+}
+
+/* Right segment */
+.crosshair-line:nth-child(4) {
+    width: 10px;
+    height: 2px;
+    left: 5px; /* Position right of center with gap */
+    top: -1px; /* Center vertically */
+}
+
+.hidden {
+    display: none;
+}
