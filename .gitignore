@@ -1,0 +1,23 @@
+# Dependencies
+node_modules
+
+# Build output
+dist # Important if using GitHub Actions
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env*.local
+
+# IDE config
+.vscode # If you want to share VS Code settings, remove this line
+.idea
+
+# OS generated files
+.DS_Store
+Thumbs.db
