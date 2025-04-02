@@ -29,7 +29,7 @@ jobs:
         run: npm install
         # If you needed cannon-es, the 'npm install' above handles it now
       - name: Build Project
-        run: npm run build # This creates the dist folder
+        run: npm run dev # This creates the dist folder
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload Build Artifact
