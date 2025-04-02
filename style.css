@@ -2,54 +2,67 @@ body {
     margin: 0;
 }
 
+/* Existing crosshair styles remain the same */
 #crosshair {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    pointer-events: none; /* Prevents interference with mouse controls */
-    z-index: 1000; /* Ensures it stays above the Three.js canvas */
+    pointer-events: none;
+    z-index: 1000;
 }
 
-/* Container for crosshair segments */
 .crosshair-line {
     position: absolute;
-    background-color: white; /* Bright core color */
-    box-shadow: 0 0 2px 1px black; /* Black outline for contrast */
+    background-color: white;
+    box-shadow: 0 0 2px 1px black;
 }
 
-/* Top segment */
 .crosshair-line:nth-child(1) {
     width: 2px;
     height: 10px;
-    left: -1px; /* Center horizontally */
-    top: -15px; /* Position above center with gap */
+    left: -1px;
+    top: -15px;
 }
 
-/* Bottom segment */
 .crosshair-line:nth-child(2) {
     width: 2px;
     height: 10px;
-    left: -1px; /* Center horizontally */
-    top: 5px; /* Position below center with gap */
+    left: -1px;
+    top: 5px;
 }
 
-/* Left segment */
 .crosshair-line:nth-child(3) {
     width: 10px;
     height: 2px;
-    left: -15px; /* Position left of center with gap */
-    top: -1px; /* Center vertically */
+    left: -15px;
+    top: -1px;
 }
 
-/* Right segment */
 .crosshair-line:nth-child(4) {
     width: 10px;
     height: 2px;
-    left: 5px; /* Position right of center with gap */
-    top: -1px; /* Center vertically */
+    left: 5px;
+    top: -1px;
 }
 
 .hidden {
     display: none;
+}
+
+/* New styles for the link */
+.vibe-jam-link {
+    font-family: 'system-ui', sans-serif;
+    position: fixed;
+    bottom: -1px;
+    right: -1px;
+    padding: 7px;
+    font-size: 14px;
+    font-weight: bold;
+    background: #fff;
+    color: #000;
+    text-decoration: none;
+    z-index: 10000; /* Using 10000 as in your original */
+    border-top-left-radius: 12px;
+    border: 1px solid #fff;
 }
