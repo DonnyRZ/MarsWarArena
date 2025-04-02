@@ -7,8 +7,8 @@ on:
 
 permissions:
   contents: read
-  pages: write # Needed to deploy to GitHub Pages
-  id-token: write # Needed for deployment action authentication
+  pages: write      # Needed to deploy to GitHub Pages
+  id-token: write   # Needed for deployment action authentication
 
 concurrency:
   group: "pages"
@@ -24,18 +24,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20 # Use Node 20, or your preferred version
-          cache: "npm"
+          cache: 'npm'
       - name: Install Dependencies
         run: npm install
         # If you needed cannon-es, the 'npm install' above handles it now
       - name: Build Project
-        run: npm run dev # This creates the dist folder
+        run: npm run build # This creates the dist folder
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./dist" # Upload the contents of the dist folder
+          path: './dist' # Upload the contents of the dist folder
 
   deploy:
     needs: build # Wait for the build job to complete
