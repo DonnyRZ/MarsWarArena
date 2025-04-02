@@ -1,0 +1,49 @@
+name: Deploy Vite Project to GitHub Pages
+
+on:
+  push:
+    branches: ["main"] # Trigger deployment on pushes to the main branch
+  workflow_dispatch: # Allow manual triggering from GitHub Actions tab
+
+permissions:
+  contents: read
+  pages: write # Needed to deploy to GitHub Pages
+  id-token: write # Needed for deployment action authentication
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # Use Node 20, or your preferred version
+          cache: "npm"
+      - name: Install Dependencies
+        run: npm install
+        # If you needed cannon-es, the 'npm install' above handles it now
+      - name: Build Project
+        run: npm run build # This creates the dist folder
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Build Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./dist" # Upload the contents of the dist folder
+
+  deploy:
+    needs: build # Wait for the build job to complete
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }} # Output the deployment URL
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 # Use the official deployment action
