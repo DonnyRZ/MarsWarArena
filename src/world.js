@@ -7,7 +7,7 @@ class World {
     constructor(scene) {
         this.scene = scene;
         this.params = {
-            width: 64,
+            width: 90,
             height: 5,
             terrain: {
                 seed: 1337,

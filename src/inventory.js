@@ -58,7 +58,6 @@ export class LaserGun {
         mesh.position.set(x, y, z);
         mesh.rotation.set(rx, ry, rz);
         mesh.scale.set(sx, sy, sz);
-        // Shadows are handled globally for the group after build
         this.mesh.add(mesh);
         return mesh;
     }
@@ -110,9 +109,13 @@ export class LaserGun {
         // Sight (Simple but distinct)
         this._createPart(boxGeometry, detailMat, 0, 0.1, 2.5, 0, 0, 0, 0.2, 0.3, 0.8); // Sight base
         this._createPart(boxGeometry, emitterMat, 0, 0.35, 2.5, 0, 0, 0, 0.1, 0.1, 0.1); // Small red dot/indicator
+
+        // Add barrelTip marker at the end of the emitter
+        this.barrelTip = new THREE.Object3D();
+        this.barrelTip.position.set(0, -0.8, 6.8); // Position at the emitter's end (z = 6.5 + 0.3)
+        this.mesh.add(this.barrelTip);
     }
 }
-
 
 // =============================================================================
 // === SABER CLASS =============================================================
@@ -122,27 +125,19 @@ export class Saber {
     constructor() {
         // --- Saber Materials ---
         this.materials = {
-            // Hilt (using MeshStandardMaterial for better lighting interaction)
             hiltDark: new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.6, metalness: 0.4 }),
             hiltLight: new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.5, metalness: 0.5 }),
             hiltAccentRed: new THREE.MeshStandardMaterial({ color: 0xcc0000, roughness: 0.7, metalness: 0.2 }),
             hiltAccentGold: new THREE.MeshStandardMaterial({ color: 0xffcc33, roughness: 0.4, metalness: 0.6 }),
             hiltAccentBlack: new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8, metalness: 0.1 }),
-            shroud: new THREE.MeshStandardMaterial({ color: 0x999999, roughness: 0.5, metalness: 0.5 }), // Specific shroud grey
-
-            // Blade (using MeshBasicMaterial for glow effect - won't receive shadows)
-            bladeOuter: new THREE.MeshBasicMaterial({ color: 0x66ff99 }), // Bright green
-            bladeInner: new THREE.MeshBasicMaterial({ color: 0xffffff })  // Pure white
+            shroud: new THREE.MeshStandardMaterial({ color: 0x999999, roughness: 0.5, metalness: 0.5 }),
+            bladeOuter: new THREE.MeshBasicMaterial({ color: 0x66ff99 }),
+            bladeInner: new THREE.MeshBasicMaterial({ color: 0xffffff })
         };
 
-        // --- Saber Model Group ---
-        this.mesh = new THREE.Group(); // Group all parts together
-
-        // --- Build the Saber ---
+        this.mesh = new THREE.Group();
         this.buildSaber();
 
-        // --- Set Shadows for hilt parts ---
-        // Note: Blades use MeshBasicMaterial and won't cast/receive shadows
         this.mesh.traverse((child) => {
             if (child instanceof THREE.Mesh && !(child.material instanceof THREE.MeshBasicMaterial)) {
                 child.castShadow = true;
@@ -152,7 +147,6 @@ export class Saber {
     }
 
     buildSaber() {
-        // Use internal materials reference
         const hiltDarkMat = this.materials.hiltDark;
         const hiltLightMat = this.materials.hiltLight;
         const hiltAccentRedMat = this.materials.hiltAccentRed;
@@ -162,40 +156,34 @@ export class Saber {
         const bladeOuterMat = this.materials.bladeOuter;
         const bladeInnerMat = this.materials.bladeInner;
 
-        // --- Hilt Dimensions ---
         const hiltBaseHeight = 1.0;
         const hiltMidHeight = 1.5;
         const hiltEmitterHeight = 0.5;
         const hiltWidth = 0.5;
         const hiltDepth = 0.5;
 
-        // --- Hilt Base (Pommel) ---
-        const baseGeo = new THREE.BoxGeometry(hiltWidth * 1.2, hiltBaseHeight, hiltDepth * 1.2); // Slightly wider base
+        const baseGeo = new THREE.BoxGeometry(hiltWidth * 1.2, hiltBaseHeight, hiltDepth * 1.2);
         const hiltBase = new THREE.Mesh(baseGeo, hiltDarkMat);
         hiltBase.position.y = -(hiltMidHeight / 2 + hiltBaseHeight / 2);
         this.mesh.add(hiltBase);
 
-        // Small protrusions at the very bottom
         const pommelDetailGeo = new THREE.BoxGeometry(hiltWidth * 0.3, hiltBaseHeight * 0.4, hiltDepth * 1.4);
         const pommelDetail1 = new THREE.Mesh(pommelDetailGeo, hiltLightMat);
         pommelDetail1.position.y = hiltBase.position.y - hiltBaseHeight * 0.3;
-        pommelDetail1.position.x = hiltWidth * 0.3; // Offset slightly
+        pommelDetail1.position.x = hiltWidth * 0.3;
         this.mesh.add(pommelDetail1);
 
-        const pommelDetail2 = pommelDetail1.clone(); // Clone for the other side
+        const pommelDetail2 = pommelDetail1.clone();
         pommelDetail2.position.x = -hiltWidth * 0.3;
         this.mesh.add(pommelDetail2);
 
-        // --- Hilt Middle Section ---
         const midGeo = new THREE.BoxGeometry(hiltWidth, hiltMidHeight, hiltDepth);
         const hiltMid = new THREE.Mesh(midGeo, hiltLightMat);
-        // Position y = 0 (center of this part is the group's origin for simplicity)
         this.mesh.add(hiltMid);
 
-        // Hilt Mid Details (Grips)
-        const gripGeo = new THREE.BoxGeometry(hiltWidth * 1.05, hiltMidHeight * 0.15, hiltDepth * 1.05); // Thin grip bands
+        const gripGeo = new THREE.BoxGeometry(hiltWidth * 1.05, hiltMidHeight * 0.15, hiltDepth * 1.05);
         const grip1 = new THREE.Mesh(gripGeo, hiltAccentBlackMat);
-        grip1.position.y = hiltMidHeight * 0.35; // Position grips relative to mid section center
+        grip1.position.y = hiltMidHeight * 0.35;
         this.mesh.add(grip1);
 
         const grip2 = grip1.clone();
@@ -210,36 +198,30 @@ export class Saber {
         grip4.position.y = -hiltMidHeight * 0.35;
         this.mesh.add(grip4);
 
-        // Red Button
         const buttonGeo = new THREE.BoxGeometry(hiltWidth * 0.3, hiltWidth * 0.3, hiltDepth * 0.2);
         const redButton = new THREE.Mesh(buttonGeo, hiltAccentRedMat);
-        redButton.position.set(hiltWidth / 2 + hiltDepth * 0.1, hiltMidHeight * 0.3, 0); // Position on the side, slightly out
-        redButton.rotation.y = Math.PI / 2; // Rotate to face outwards
+        redButton.position.set(hiltWidth / 2 + hiltDepth * 0.1, hiltMidHeight * 0.3, 0);
+        redButton.rotation.y = Math.PI / 2;
         this.mesh.add(redButton);
 
-        // Gold Switch
         const switchGeo = new THREE.BoxGeometry(hiltWidth * 0.6, hiltWidth * 0.2, hiltDepth * 0.2);
         const goldSwitch = new THREE.Mesh(switchGeo, hiltAccentGoldMat);
-        goldSwitch.position.set(hiltWidth / 2 + hiltDepth * 0.1, 0, 0); // Position on the side, centered vertically
+        goldSwitch.position.set(hiltWidth / 2 + hiltDepth * 0.1, 0, 0);
         goldSwitch.rotation.y = Math.PI / 2;
         this.mesh.add(goldSwitch);
 
-        // Small square detail
         const squareDetailGeo = new THREE.BoxGeometry(hiltWidth * 0.25, hiltWidth * 0.25, hiltDepth * 0.2);
         const squareDetail = new THREE.Mesh(squareDetailGeo, hiltAccentBlackMat);
-        squareDetail.position.set(hiltWidth / 2 + hiltDepth * 0.1, -hiltMidHeight * 0.3, 0); // Position on the side, lower part
+        squareDetail.position.set(hiltWidth / 2 + hiltDepth * 0.1, -hiltMidHeight * 0.3, 0);
         squareDetail.rotation.y = Math.PI / 2;
         this.mesh.add(squareDetail);
 
-        // --- Hilt Emitter ---
-        const emitterGeo = new THREE.BoxGeometry(hiltWidth * 0.8, hiltEmitterHeight, hiltDepth * 0.8); // Slightly thinner
+        const emitterGeo = new THREE.BoxGeometry(hiltWidth * 0.8, hiltEmitterHeight, hiltDepth * 0.8);
         const hiltEmitter = new THREE.Mesh(emitterGeo, hiltDarkMat);
         hiltEmitter.position.y = hiltMidHeight / 2 + hiltEmitterHeight / 2;
         this.mesh.add(hiltEmitter);
 
-        // Emitter shroud (angled parts)
         const shroudPartGeo = new THREE.BoxGeometry(hiltWidth * 0.4, hiltEmitterHeight * 1.2, hiltDepth * 0.4);
-        // Using the specific shroud material defined above
         const shroud1 = new THREE.Mesh(shroudPartGeo, shroudMat);
         shroud1.position.set(hiltWidth * 0.3, hiltEmitter.position.y, hiltDepth * 0.3);
         this.mesh.add(shroud1);
@@ -256,33 +238,25 @@ export class Saber {
         shroud4.position.set(-hiltWidth * 0.3, hiltEmitter.position.y, -hiltDepth * 0.3);
         this.mesh.add(shroud4);
 
-        // --- Blade ---
         const bladeLength = 6.0;
         const bladeWidth = 0.35;
         const bladeDepth = 0.35;
-        const bladeCoreWidth = 0.18; // Slightly thinner core
+        const bladeCoreWidth = 0.18;
         const bladeCoreDepth = 0.18;
 
-        // Outer Blade
         const bladeOuterGeo = new THREE.BoxGeometry(bladeWidth, bladeLength, bladeDepth);
         const bladeOuter = new THREE.Mesh(bladeOuterGeo, bladeOuterMat);
-        // Position blade relative to emitter top
         bladeOuter.position.y = hiltEmitter.position.y + hiltEmitterHeight / 2 + bladeLength / 2;
         this.mesh.add(bladeOuter);
 
-        // Inner Blade Core
-        const bladeInnerGeo = new THREE.BoxGeometry(bladeCoreWidth, bladeLength * 1.01, bladeCoreDepth); // Slightly longer to ensure visibility at tip
+        const bladeInnerGeo = new THREE.BoxGeometry(bladeCoreWidth, bladeLength * 1.01, bladeCoreDepth);
         const bladeInner = new THREE.Mesh(bladeInnerGeo, bladeInnerMat);
-        // Position core exactly where the outer blade is
         bladeInner.position.y = bladeOuter.position.y;
-        // Render inner core *after* outer blade (usually default, but good practice)
         bladeInner.renderOrder = 1;
         this.mesh.add(bladeInner);
 
-        // --- Initial Saber Orientation ---
-        // These rotations/positions define the default pose of the saber model itself
-        this.mesh.rotation.z = Math.PI / 5; // Tilt the saber ~36 degrees sideways
-        this.mesh.rotation.x = Math.PI / 10; // Slight tilt forward
-        this.mesh.position.y = -1; // Move the whole model down slightly relative to its group origin
+        this.mesh.rotation.z = Math.PI / 5;
+        this.mesh.rotation.x = Math.PI / 10;
+        this.mesh.position.y = -1;
     }
 }

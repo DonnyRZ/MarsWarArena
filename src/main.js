@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import World from './world.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { LightingSystem } from './lighting.js';
@@ -7,171 +6,140 @@ import { Player } from './player.js';
 import { Physics } from './physics.js';
 import { Martian } from './martian.js';
 import { WorldBoundary } from './world_boundary.js';
+import { Menu } from './menu.js';
+import { POV } from './camera.js';
+import { AudioManager } from './AudioManager.js';
 
-// **Initialize Three.js Components**
+// Initialize Three.js Components
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x80a0e0); // Light blue sky color
+renderer.setClearColor(0x80a0e0);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-// **Setup Stats**
+const activeLaserBeams = [];
+
 const stats = new Stats();
 document.body.appendChild(stats.dom);
 
-// **Setup OrbitControls**
-const orbitControls = new OrbitControls(camera, renderer.domElement);
-orbitControls.enableDamping = true; // Smooth camera movement
-orbitControls.dampingFactor = 0.05;
-orbitControls.minDistance = 2; // Prevent zooming too close
-orbitControls.maxDistance = 100; // Limit zoom out
-
-// **Setup Lighting**
 const lightingSystem = new LightingSystem(scene);
-
-// **Create World Instance**
 const world = new World(scene);
-
-// **Create World Boundary**
 const worldBoundary = new WorldBoundary(world.params);
-
-// **Create Physics Instance with Barriers**
 const physics = new Physics(scene, worldBoundary.barriers);
 
-// **Create Player Instance**
-const player = new Player(camera, renderer.domElement, scene);
+// Initialize AudioManager and load sounds
+const audioManager = new AudioManager();
+// Updated paths to match the exact case of the file names
+audioManager.loadSound('laser', 'public/sfx/laser.MP3');
+audioManager.loadSound('impact_martian', 'public/sfx/impact_martian.MP3');
 
-// **Create Martian Instances**
-const numMartians = 10;
+// Create Player with audioManager
+const player = new Player(camera, renderer.domElement, scene, activeLaserBeams, physics, world, audioManager);
+
+const numMartians = 20;
 const worldWidth = world.params.width;
 const centerOffset = (worldWidth - 1) / 2;
-const spawnMargin = 5; // Keep Martians away from edges initially
+const spawnMargin = 5;
 for (let i = 0; i < numMartians; i++) {
     const randomX = (Math.random() * (worldWidth - spawnMargin * 2)) - (centerOffset - spawnMargin);
     const randomZ = (Math.random() * (worldWidth - spawnMargin * 2)) - (centerOffset - spawnMargin);
-    const startY = 25; // Start high enough to fall onto terrain
+    const startY = 25;
     const startPosition = new THREE.Vector3(randomX, startY, randomZ);
     const martianInstance = new Martian(scene, startPosition, world);
     physics.addCreature(martianInstance);
 }
 
-// **Add UI**
-import createUI from './ui.js';
-createUI(world, lightingSystem); // Pass necessary instances to UI creation function
+const menu = new Menu();
+const crosshair = document.getElementById('crosshair');
+if (!crosshair) {
+    console.warn("Crosshair element with ID 'crosshair' not found in HTML.");
+}
 
-// **Position Camera Initially**
-camera.position.set(0, 20, 10); // Good starting overview position
-orbitControls.target.copy(player.visualPosition); // Focus on player's visual position initially
+const pov = new POV(camera, player, crosshair);
 
-// **Event Listeners**
+// Event Listeners
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// **Animation Loop**
-const clock = new THREE.Clock();
-let previousIsFirstPerson = false;
-let previousWeaponEquipped = false;
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'm' || event.key === 'M') {
+        menu.toggle();
+    } else if (event.key === 't') { // Test laser sound
+        audioManager.playSound('laser');
+    } else if (event.key === 'y') { // Test impact sound
+        audioManager.playSound('impact_martian');
+    }
+});
 
-// Get reference to the crosshair element (assuming it exists in HTML)
-const crosshair = document.getElementById('crosshair');
-if (!crosshair) {
-    console.warn("Crosshair element with ID 'crosshair' not found in HTML.");
-}
+document.addEventListener('click', () => {
+    if (!menu.isOpen() && !player.isFrontViewRequested) {
+        player.controls.lock();
+    }
+});
+
+// Resume audio context on controls lock
+player.controls.addEventListener('lock', () => {
+    player.isFirstPerson = true;
+    if (player.audioManager.context.state === 'suspended') {
+        player.audioManager.context.resume();
+    }
+});
+
+// Animation Loop
+const clock = new THREE.Clock();
 
 function animate() {
     let deltaTime = clock.getDelta();
-    if (deltaTime > 0.1) deltaTime = 0.1; // Cap delta time to prevent large jumps
+    if (deltaTime > 0.1) deltaTime = 0.1;
 
-    // **Update Game Systems**
-    lightingSystem.update(deltaTime);
-    physics.update(deltaTime, player, world); // Physics needs player and world info
+    if (!menu.isOpen()) {
+        physics.update(deltaTime, player, world);
 
-    // Smooth player visual position towards physics position
-    const alpha = 0.2; // Lerp factor for smoothing
-    player.visualPosition.lerp(player.position, alpha);
-    player.human.updatePosition(player.visualPosition); // Update human model's position
+        // Remove dead Martians
+        physics.creatures = physics.creatures.filter(creature => {
+            if (creature.isDead) {
+                scene.remove(creature.mesh);
+                return false;
+            }
+            return true;
+        });
 
-    // **Determine Weapon Equipped State**
-    const weaponEquipped = player.human.isSaberEquipped || player.human.isLaserGunEquipped;
+        lightingSystem.update(deltaTime);
 
-    // **Handle View Switching (Visibility Logic)**
-    if (player.isFirstPerson && weaponEquipped) {
-        // First-person with weapon logic
-        if (!previousIsFirstPerson || !previousWeaponEquipped) {
-            // Hide main body parts
-            player.human.head.visible = false;
-            player.human.visor.visible = false;
-            player.human.body.visible = false;
-            player.human.leftSeam.visible = false;
-            player.human.rightSeam.visible = false;
-            player.human.oxygenTank.visible = false;
-            player.human.upperLeftLeg.visible = false;
-            player.human.leftFoot.visible = false;
-            player.human.upperRightLeg.visible = false;
-            player.human.rightFoot.visible = false;
+        const alpha = 0.2;
+        player.visualPosition.lerp(player.position, alpha);
+        player.human.updatePosition(player.visualPosition);
 
-            // Show crosshair if exists
-            if (crosshair) crosshair.classList.remove('hidden');
-        }
-    } else {
-        // Third-person or first-person without weapon
-        if (previousIsFirstPerson && previousWeaponEquipped) {
-            // Restore visibility of main body parts
-            player.human.head.visible = true;
-            player.human.visor.visible = true;
-            player.human.body.visible = true;
-            player.human.leftSeam.visible = true;
-            player.human.rightSeam.visible = true;
-            player.human.oxygenTank.visible = true;
-            player.human.upperLeftLeg.visible = true;
-            player.human.leftFoot.visible = true;
-            player.human.upperRightLeg.visible = true;
-            player.human.rightFoot.visible = true;
+        physics.creatures.forEach(creature => {
+            if (creature.mesh) {
+                creature.visualPosition.lerp(creature.position, alpha);
+                creature.mesh.position.copy(creature.visualPosition);
+            }
+        });
 
-            // Hide crosshair if exists
-            if (crosshair) crosshair.classList.add('hidden');
+        pov.update();
+
+        const currentTime = performance.now();
+        for (let i = activeLaserBeams.length - 1; i >= 0; i--) {
+            const beam = activeLaserBeams[i];
+            if (currentTime >= beam.despawnTime) {
+                scene.remove(beam.mesh);
+                beam.mesh.geometry.dispose();
+                beam.mesh.material.dispose();
+                activeLaserBeams.splice(i, 1);
+            }
         }
     }
 
-    // Update previous states
-    previousIsFirstPerson = player.isFirstPerson;
-    previousWeaponEquipped = weaponEquipped;
-
-    // **Camera Control Logic**
-    if (player.isFirstPerson) {
-        orbitControls.enabled = false;
-        if (weaponEquipped) {
-            // First-person with weapon: eye level
-            camera.position.copy(player.visualPosition);
-            camera.position.y += player.height * 0.45;
-        } else {
-            // Player View Updated: Behind-the-player view
-            const offset = new THREE.Vector3(0, 0.5, -2); // 5 units up, 10 units back
-            const playerQuaternion = player.human.mesh.quaternion;
-            const cameraPosition = player.visualPosition.clone().add(offset.applyQuaternion(playerQuaternion));
-            camera.position.copy(cameraPosition);
-            // Rotation is handled by PointerLockControls in player.js
-        }
-    } else {
-        // Orbital view (third-person)
-        orbitControls.enabled = true;
-        orbitControls.target.copy(player.visualPosition);
-        orbitControls.update();
-    }
-
-    // **Update Performance Stats**
     stats.update();
-
-    // **Render the Scene**
     renderer.render(scene, camera);
 }
 
-// **Start the Animation Loop**
 renderer.setAnimationLoop(animate);

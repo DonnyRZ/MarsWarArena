@@ -2,7 +2,7 @@ body {
     margin: 0;
 }
 
-/* Existing crosshair styles remain the same */
+/* Existing crosshair styles */
 #crosshair {
     position: fixed;
     top: 50%;
@@ -50,7 +50,7 @@ body {
     display: none;
 }
 
-/* New styles for the link */
+/* Existing styles for the link */
 .vibe-jam-link {
     font-family: 'system-ui', sans-serif;
     position: fixed;
@@ -62,7 +62,39 @@ body {
     background: #fff;
     color: #000;
     text-decoration: none;
-    z-index: 10000; /* Using 10000 as in your original */
+    z-index: 10000;
     border-top-left-radius: 12px;
     border: 1px solid #fff;
+}
+
+/* New styles for the pause menu */
+#pause-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    z-index: 10001; /* Above crosshair (1000) and vibe-jam-link (10000) */
+    text-align: center;
+}
+
+#pause-menu h2 {
+    margin-top: 0;
+}
+
+#pause-menu p {
+    margin: 10px 0;
+}
+
+#resume-button {
+    padding: 10px 20px;
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }

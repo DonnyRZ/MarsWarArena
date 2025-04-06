@@ -5,8 +5,8 @@ import * as THREE from 'three';
 
 export class MartianAI {
     constructor(
-        detectionRadius = 8, // Slightly increased detection range
-        fleeSpeed = 10,       // Slightly reduced base speed as jumping adds momentum
+        detectionRadius = 25, // Slightly increased detection range
+        fleeSpeed = 20,       // Slightly reduced base speed as jumping adds momentum
         fleeJumpIntervalMin = 0.3, // Min seconds between AI-triggered jumps when fleeing
         fleeJumpIntervalMax = 0.7, // Max seconds between AI-triggered jumps when fleeing
         stuckTimeThreshold = 0.8, // Seconds of low velocity before considered stuck

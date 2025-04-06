@@ -144,8 +144,6 @@ export class Human {
             }
             // Add saber to left hand
             this.leftHand.add(this.saber.mesh);
-            // Adjust left arm rotation
-            this.leftArmGroup.rotation.x = -Math.PI / 2;
             this.isSaberEquipped = true;
         }
     }
@@ -154,8 +152,6 @@ export class Human {
         if (this.isSaberEquipped) {
             // Remove saber from left hand
             this.leftHand.remove(this.saber.mesh);
-            // Reset left arm rotation
-            this.leftArmGroup.rotation.x = 0;
             this.isSaberEquipped = false;
         }
     }
@@ -168,8 +164,6 @@ export class Human {
             }
             // Add laser gun to left hand
             this.leftHand.add(this.laserGun.mesh);
-            // Adjust left arm rotation
-            this.leftArmGroup.rotation.x = -Math.PI / 2;
             this.isLaserGunEquipped = true;
         }
     }
@@ -178,8 +172,6 @@ export class Human {
         if (this.isLaserGunEquipped) {
             // Remove laser gun from left hand
             this.leftHand.remove(this.laserGun.mesh);
-            // Reset left arm rotation
-            this.leftArmGroup.rotation.x = 0;
             this.isLaserGunEquipped = false;
         }
     }
@@ -188,7 +180,18 @@ export class Human {
         this.mesh.position.copy(newPosition);
     }
 
-    updateRotation(yaw) {
+    updateRotation(yaw, pitch, applyPitch) {
+        // Rotate the entire player model based on yaw
         this.mesh.rotation.set(0, yaw + Math.PI, 0);
+        // Adjust the left arm rotation based on pitch only if a weapon is equipped and in first-person view
+        if (this.isSaberEquipped || this.isLaserGunEquipped) {
+            if (applyPitch) {
+                this.leftArmGroup.rotation.x = -Math.PI / 2 - pitch;
+            } else {
+                this.leftArmGroup.rotation.x = -Math.PI / 2;
+            }
+        } else {
+            this.leftArmGroup.rotation.x = 0;
+        }
     }
 }
