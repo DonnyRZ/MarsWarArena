@@ -34,8 +34,8 @@ const physics = new Physics(scene, worldBoundary.barriers);
 // Initialize AudioManager and load sounds
 const audioManager = new AudioManager();
 // Updated paths to match the exact case of the file names
-audioManager.loadSound('laser', 'public/sfx/laser.MP3');
-audioManager.loadSound('impact_martian', 'public/sfx/impact_martian.MP3');
+audioManager.loadSound('laser', 'sfx/laser.MP3');
+audioManager.loadSound('impact_martian', 'sfx/impact_martian.MP3');
 
 // Create Player with audioManager
 const player = new Player(camera, renderer.domElement, scene, activeLaserBeams, physics, world, audioManager);
