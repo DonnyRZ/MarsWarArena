@@ -44,8 +44,8 @@ export class LightingSystem {
         this.directionalLight.shadow.camera.bottom = -50;
         this.directionalLight.shadow.camera.near = 0.5;
         this.directionalLight.shadow.camera.far = 100;
-        this.directionalLight.shadow.mapSize.width = 2048;
-        this.directionalLight.shadow.mapSize.height = 2048;
+        this.directionalLight.shadow.mapSize.width = 1024;
+        this.directionalLight.shadow.mapSize.height = 1024;
 
         this.scene.add(this.directionalLight);
     }

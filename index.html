@@ -8,15 +8,17 @@
     <title>Mars War Arena</title>
   </head>
   <body>
-    <div id="app"></div>
-    <!-- Crosshair structure with four segments -->
+    <div id="app"></div> <!-- Canvas likely goes here -->
+
+    <!-- Crosshair structure -->
     <div id="crosshair" class="hidden">
       <div class="crosshair-line"></div> <!-- Top -->
       <div class="crosshair-line"></div> <!-- Bottom -->
       <div class="crosshair-line"></div> <!-- Left -->
       <div class="crosshair-line"></div> <!-- Right -->
     </div>
-    <!-- Pause Menu -->
+
+    <!-- Pause Menu (For PC) -->
     <div id="pause-menu" class="hidden">
       <h2>Game Paused / Controls</h2>
       <p><strong>W, S, A, D:</strong> Activate First Person / Move</p>
@@ -25,14 +27,58 @@
       <p><strong>Left Click:</strong> Attack with equipped weapon</p>
       <p><strong>1:</strong> Toggle Saber</p>
       <p><strong>2:</strong> Toggle Laser Gun</p>
-      <p><strong>Shift (Hold):</strong> Run</p>
-      <p><strong>Arrow Keys / Mouse Drag:</strong> Orbit Camera (Third Person)</p>
-      <p><strong>Scroll Wheel / Pinch:</strong> Zoom (Third Person)</p>
       <p><strong>M:</strong> Toggle this Menu</p>
       <button id="resume-button">Resume Game</button>
     </div>
-    <!-- New link element -->
-    <a target="_blank" href="https://jam.pieter.com" class="vibe-jam-link">🕹️ Vibe Jam 2025</a>
+
+    <!-- START: NEW MOBILE PAUSE MENU -->
+    <div id="mobile-pause-menu" class="hidden">
+      <h2>Game Paused</h2>
+      <!-- Content simplified for mobile -->
+      <!-- Buttons will be styled larger and stacked for touch -->
+      <button id="mobile-resume-button">Resume Game</button>
+      <!-- Example: Add an options button later if needed -->
+      <!-- <button id="mobile-options-button">Options</button> -->
+      <!-- Example: Add a quit button later if needed -->
+      <!-- <button id="mobile-quit-button">Quit to Main Menu</button> -->
+    </div>
+    <!-- END: NEW MOBILE PAUSE MENU -->
+
+    <!-- Portal Menu -->
+    <div id="portal-menu" class="hidden"> <!-- Start hidden -->
+        <h2 id="portal-title">MEAT COLLECTION: HUNTING MARS ANIMAL</h2> <!-- Default Title -->
+        <p id="portal-description">Mission objective: Gather vital food supplies. Alien wildlife detected. Proceed with caution. Are you ready to begin the hunt?</p> <!-- Default Description -->
+        <div class="menu-buttons">
+            <button id="portal-ready-button">I'm Ready!</button>
+            <button id="portal-back-button">I want to go back to Base</button>
+        </div>
+    </div>
+
+    <!-- HUD Top Center Container -->
+    <div id="hud-top-center">
+        <!-- Timer Display -->
+        <div id="timer-display" class="game-ui hidden">
+            MISSION TIME: <span id="timer-value">0.0</span>s
+        </div>
+
+        <!-- Martian Count Display -->
+        <div id="martian-count-display" class="game-ui hidden">
+            Martians Remaining: <span id="martian-count-value">0</span>
+        </div>
+    </div>
+
+    <!-- Radar Canvas -->
+    <canvas id="radar-canvas" class="hidden" width="150" height="150"></canvas>
+
+    <!-- Player Health Bar (NEW) -->
+    <div id="player-health-bar-container" class="game-ui hidden">
+        <div id="player-health-bar-fill"></div>
+        <span id="player-health-text">100%</span>
+    </div>
+
+    <div id="mobile-menu-button" class="mobile-control-element hidden">MENU</div>
+
+    <!-- Script include -->
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

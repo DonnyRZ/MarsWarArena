@@ -1,78 +1,52 @@
+// src/camera.js
+// DEBUG: Added logging for first-person position calculation
+
 import * as THREE from 'three';
 
 export class POV {
-    constructor(camera, player, crosshair) {
+    constructor(camera) {
         this.camera = camera;
-        this.player = player;
-        this.crosshair = crosshair;
-        this.previousWeaponEquipped = false;
     }
 
-    update() {
-        const weaponEquipped = this.player.human.isSaberEquipped || this.player.human.isLaserGunEquipped;
+    update(cameraInfo, crosshair) {
+        // Destructure needed info, mode will now only be 'firstPerson' or 'thirdPerson'
+        const { mode, targetPosition, modelOrientation, firstPersonEyeOffset } = cameraInfo;
 
-        if (this.player.isFrontViewRequested) {
-            // Front view
-            const offset = new THREE.Vector3(0, 0.5, 2); // Position in front of player
-            const playerQuaternion = this.player.human.mesh.quaternion;
-            const cameraPosition = this.player.visualPosition.clone().add(offset.applyQuaternion(playerQuaternion));
-            this.camera.position.copy(cameraPosition);
-            this.camera.lookAt(this.player.visualPosition); // Look at player
-
-            // Make player model visible
-            this.player.human.head.visible = true;
-            this.player.human.visor.visible = true;
-            this.player.human.body.visible = true;
-            this.player.human.leftSeam.visible = true;
-            this.player.human.rightSeam.visible = true;
-            this.player.human.oxygenTank.visible = true;
-            this.player.human.upperLeftLeg.visible = true;
-            this.player.human.leftFoot.visible = true;
-            this.player.human.upperRightLeg.visible = true;
-            this.player.human.rightFoot.visible = true;
-
-            // Hide crosshair
-            if (this.crosshair) this.crosshair.classList.add('hidden');
-        } else {
-            // Existing logic for first-person or third-person view
-            if (weaponEquipped) {
-                if (!this.previousWeaponEquipped) {
-                    this.player.human.head.visible = false;
-                    this.player.human.visor.visible = false;
-                    this.player.human.body.visible = false;
-                    this.player.human.leftSeam.visible = false;
-                    this.player.human.rightSeam.visible = false;
-                    this.player.human.oxygenTank.visible = false;
-                    this.player.human.upperLeftLeg.visible = false;
-                    this.player.human.leftFoot.visible = false;
-                    this.player.human.upperRightLeg.visible = false;
-                    this.player.human.rightFoot.visible = false;
-                    if (this.crosshair) this.crosshair.classList.remove('hidden');
-                }
-                // Eye-Level View (First-Person)
-                this.camera.position.copy(this.player.visualPosition);
-                this.camera.position.y += this.player.height * 0.45;
-            } else {
-                if (this.previousWeaponEquipped) {
-                    this.player.human.head.visible = true;
-                    this.player.human.visor.visible = true;
-                    this.player.human.body.visible = true;
-                    this.player.human.leftSeam.visible = true;
-                    this.player.human.rightSeam.visible = true;
-                    this.player.human.oxygenTank.visible = true;
-                    this.player.human.upperLeftLeg.visible = true;
-                    this.player.human.leftFoot.visible = true;
-                    this.player.human.upperRightLeg.visible = true;
-                    this.player.human.rightFoot.visible = true;
-                    if (this.crosshair) this.crosshair.classList.add('hidden');
-                }
-                // Behind-Player View (Third-Person)
-                const offset = new THREE.Vector3(0, 0.5, -2);
-                const playerQuaternion = this.player.human.mesh.quaternion;
-                const cameraPosition = this.player.visualPosition.clone().add(offset.applyQuaternion(playerQuaternion));
-                this.camera.position.copy(cameraPosition);
-            }
-            this.previousWeaponEquipped = weaponEquipped;
+        // Basic validation of input
+        if (!targetPosition || !modelOrientation) {
+            console.error("POV.update received invalid cameraInfo:", cameraInfo);
+            return; // Avoid errors if data is missing
         }
+
+
+        // --- Camera Positioning based on mode ---
+        if (mode === 'firstPerson') {
+            const finalCamPos = targetPosition.clone(); // Start with player visual position
+            finalCamPos.y += firstPersonEyeOffset; // Add eye offset
+            this.camera.position.copy(finalCamPos);
+
+            // --- ADD LOGGING ---
+            console.log(`POV Update: Mode=firstPerson, TargetPos=(${targetPosition.x.toFixed(2)}, ${targetPosition.y.toFixed(2)}, ${targetPosition.z.toFixed(2)}), EyeOffset=${firstPersonEyeOffset.toFixed(2)}, FinalCamPos=(${finalCamPos.x.toFixed(2)}, ${finalCamPos.y.toFixed(2)}, ${finalCamPos.z.toFixed(2)})`);
+            // --- END LOGGING ---
+
+            // Orientation handled by PointerLockControls
+            if (crosshair) crosshair.classList.remove('hidden');
+
+        } else { // mode === 'thirdPerson' (Default if not firstPerson)
+            const offset = new THREE.Vector3(0, 0.5, -2);
+            // Ensure modelOrientation is a valid Quaternion before applying
+             if (modelOrientation instanceof THREE.Quaternion) {
+                 offset.applyQuaternion(modelOrientation);
+             } else {
+                 console.warn("POV Update: Invalid modelOrientation received for thirdPerson offset calculation.");
+             }
+            const cameraPosition = targetPosition.clone().add(offset);
+            this.camera.position.copy(cameraPosition);
+            // console.log(`POV Update: Mode=thirdPerson, FinalCamPos=(${cameraPosition.x.toFixed(2)}, ${cameraPosition.y.toFixed(2)}, ${cameraPosition.z.toFixed(2)})`); // Optional log
+
+            // Orientation handled by PointerLockControls when locked
+            if (crosshair) crosshair.classList.add('hidden');
+        }
+        // Model visibility is handled by Player.updateModelVisibility()
     }
 }

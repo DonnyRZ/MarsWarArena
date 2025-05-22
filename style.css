@@ -1,73 +1,212 @@
+/* --- style.css --- */
+
 body {
     margin: 0;
+    overflow: hidden; /* Prevent scrollbars */
+    user-select: none; /* Prevent text selection on UI elements */
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10+ */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
 }
 
-/* Existing crosshair styles */
-#crosshair {
+/* Shared styles for game UI elements if you use the .game-ui class */
+.game-ui {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-weight: bold;
+    box-sizing: border-box;
+    /* Specific positioning (fixed, absolute) should be on the elements themselves or their containers */
+}
+
+
+/* --- Styles for the HUD Container (Timer & Martian Count) --- */
+#hud-top-center {
     position: fixed;
-    top: 50%;
+    top: 20px;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
+    display: flex;
+    gap: 25px;
+    z-index: 999; /* Z-index for HUD elements */
+    align-items: center;
     pointer-events: none;
-    z-index: 1000;
 }
 
-.crosshair-line {
-    position: absolute;
-    background-color: white;
-    box-shadow: 0 0 2px 1px black;
+#timer-display {
+    /* Inherits from .game-ui if class is applied */
+    color: #ff6666; font-size: 1.2em; border: 1px solid #ff6666;
+    box-shadow: 0 0 8px rgba(255, 102, 102, 0.5); text-align: left;
+    /* Ensure these are present if not using .game-ui class on it in HTML */
+    background-color: rgba(0, 0, 0, 0.7); padding: 8px 15px; border-radius: 5px;
+    font-family: 'Consolas', 'Courier New', monospace; font-weight: bold;
 }
+#timer-display span { color: #ffdddd; min-width: 3em; display: inline-block; text-align: right; }
 
-.crosshair-line:nth-child(1) {
-    width: 2px;
-    height: 10px;
-    left: -1px;
-    top: -15px;
+#martian-count-display {
+    /* Inherits from .game-ui if class is applied in HTML */
+    color: #66ff66; font-size: 1.1em; border: 1px solid #66ff66;
+    box-shadow: 0 0 8px rgba(102, 255, 102, 0.5); text-align: left;
+    /* Ensure these are present if not using .game-ui class on it in HTML */
+    background-color: rgba(0, 0, 0, 0.7); padding: 8px 15px; border-radius: 5px;
+    font-family: 'Consolas', 'Courier New', monospace; font-weight: bold;
 }
+#martian-count-display span { color: #ccffcc; min-width: 2em; display: inline-block; text-align: right; }
 
-.crosshair-line:nth-child(2) {
-    width: 2px;
-    height: 10px;
-    left: -1px;
-    top: 5px;
-}
-
-.crosshair-line:nth-child(3) {
-    width: 10px;
-    height: 2px;
-    left: -15px;
-    top: -1px;
-}
-
-.crosshair-line:nth-child(4) {
-    width: 10px;
-    height: 2px;
-    left: 5px;
-    top: -1px;
-}
-
-.hidden {
-    display: none;
-}
-
-/* Existing styles for the link */
-.vibe-jam-link {
-    font-family: 'system-ui', sans-serif;
+/* --- Styles for the Radar Canvas --- */
+#radar-canvas {
     position: fixed;
-    bottom: -1px;
-    right: -1px;
-    padding: 7px;
+    top: 20px;
+    left: 20px;
+    width: 150px;
+    height: 150px;
+    background-color: rgba(0, 20, 0, 0.4);
+    border: 2px solid rgba(0, 255, 0, 0.6);
+    border-radius: 50%;
+    z-index: 998;
+    pointer-events: none;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+}
+
+/* --- Styles for the Player Health Bar --- */
+#player-health-bar-container {
+    /* Inherits from .game-ui if class is applied in HTML */
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    width: 250px; height: 22px; background-color: #444; border: 1px solid #222;
+    padding: 2px; z-index: 999; /* Same as other top/bottom HUD */
+    /* Ensure these are present if not using .game-ui class on it in HTML */
+    border-radius: 5px; font-family: 'Consolas', 'Courier New', monospace; font-weight: bold;
+    box-sizing: border-box;
+}
+#player-health-bar-fill {
+    height: 100%; width: 100%; background-color: #5cb85c;
+    border-radius: 3px; transition: width 0.2s ease-out, background-color 0.2s ease-out;
+}
+#player-health-text {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    color: white; font-size: 0.8em; font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.7); pointer-events: none; white-space: nowrap;
+}
+
+
+/* --- Styles for Mobile Controls --- */
+#mobile-controls-overlay {
+    /* JS sets position:fixed, left,top,width,height, z-index */
+    /* pointer-events: none; is set by JS, allowing children to override */
+    /* This overlay is mainly a container for absolute positioning of its children. */
+}
+
+/* Common class for elements that should receive touch events within the overlay */
+.mobile-control-element {
+    pointer-events: auto !important; /* Crucial: Allow touches on these specific elements */
+    position: absolute; /* Most controls will be absolutely positioned within the overlay */
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.15); /* Visual feedback for tap */
+    box-sizing: border-box;
+    user-select: none; /* Prevent text selection on buttons/joystick */
+    -webkit-user-select: none;
+}
+
+#mobile-look-area {
+    /* This area allows looking around by dragging. */
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%; /* Or specify a region, e.g., right 50% */
+    height: 100%; /* Or specify a region */
+    /* pointer-events: auto; is set by .mobile-control-element if you add that class */
+    /* OR set it directly if not using the common class: */
+    pointer-events: auto;
+    /* background-color: rgba(0, 0, 255, 0.03); /* For debugging visibility - REMOVE FOR PRODUCTION */
+    z-index: 1001; /* Below explicit buttons/joystick if they need to be on top */
+}
+
+#mobile-joystick-base {
+    /* JS sets width, height, borderRadius, backgroundColor */
+    /* Example positioning: bottom-left */
+    left: 40px;
+    bottom: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0px 0px 12px rgba(0,0,0,0.4);
+    z-index: 1002; /* Above look area */
+}
+
+#mobile-joystick-knob {
+    /* JS sets width, height, borderRadius, backgroundColor, initial position (left/top for centering) */
+    border: 2px solid rgba(40,40,40,0.6);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+    /* transform set by JS for movement */
+}
+
+.mobile-action-button {
+    /* JS sets width, height, backgroundColor, borderRadius, display, alignItems, justifyContent, color, fontSize */
+    /* Common styling for all action buttons */
+    border: 3px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+    font-weight: bold;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.9) !important; /* Ensure text is visible */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    /* z-index needs to be higher than #mobile-look-area if they overlap */
+    z-index: 1002; /* Above look area */
+    /* Default width and height, JS options will override if set */
+    width: 70px;
+    height: 70px;
+}
+
+/* Specific positions for action buttons (2x2 Grid) */
+#mobile-jump-button {
+    right: 30px;
+    bottom: 30px;
+}
+#mobile-shoot-button {
+    right: calc(30px + 70px + 15px); 
+    bottom: 30px; 
+}
+#mobile-weapon1-button {
+    right: 30px; 
+    bottom: calc(30px + 70px + 15px);
+}
+#mobile-weapon2-button {
+    right: calc(30px + 70px + 15px); 
+    bottom: calc(30px + 70px + 15px);
+}
+
+
+#mobile-menu-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 70px;
+    height: 50px;
+    background-color: rgba(100, 100, 100, 0.4);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
     font-size: 14px;
     font-weight: bold;
-    background: #fff;
-    color: #000;
-    text-decoration: none;
-    z-index: 10000;
-    border-top-left-radius: 12px;
-    border: 1px solid #fff;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0px 0px 8px rgba(0,0,0,0.3);
+    z-index: 1002;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.15);
+}
+#mobile-menu-button:active {
+    background-color: rgba(80, 80, 80, 0.7);
 }
 
-/* New styles for the pause menu */
+
+/* --- Ensure .hidden works --- */
+.hidden {
+    display: none !important;
+}
+
+
+/* --- PC Pause Menu --- */
 #pause-menu {
     position: fixed;
     top: 50%;
@@ -78,23 +217,96 @@ body {
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    z-index: 10001; /* Above crosshair (1000) and vibe-jam-link (10000) */
+    z-index: 10001; /* Higher than game controls */
     text-align: center;
+    font-family: sans-serif;
+    min-width: 350px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
-
 #pause-menu h2 {
     margin-top: 0;
+    color: #ffcc66;
 }
-
 #pause-menu p {
     margin: 10px 0;
+    line-height: 1.4;
 }
-
-#resume-button {
+#resume-button { /* PC Resume Button */
     padding: 10px 20px;
-    background-color: #4CAF50; /* Green background */
+    background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
 }
+#resume-button:hover {
+    background-color: #45a049;
+}
+
+/* START: NEW CSS FOR MOBILE PAUSE MENU */
+#mobile-pause-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(20, 20, 40, 0.9); /* Slightly different background for mobile if desired */
+    color: white;
+    padding: 25px; /* Slightly more padding */
+    border: 1px solid #778899; /* Slate gray border */
+    border-radius: 12px;
+    z-index: 10001; /* Same as PC menu, ensures it's on top */
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif; /* Simple sans-serif font */
+    width: 80vw; /* Take up more screen width */
+    max-width: 320px; /* But not too wide on tablets */
+    box-shadow: 0 0 20px rgba(100, 100, 150, 0.5);
+    display: flex; /* Use flexbox for easier button stacking */
+    flex-direction: column;
+    gap: 20px; /* Space between title and buttons */
+}
+
+#mobile-pause-menu h2 {
+    margin-top: 0;
+    margin-bottom: 10px; /* Less space after title */
+    color: #ddeeff; /* Light blue title */
+    font-size: 1.8em; /* Larger title for mobile */
+}
+
+/* Styling for buttons inside the mobile pause menu */
+#mobile-pause-menu button {
+    padding: 15px 20px; /* Larger padding for bigger tap targets */
+    background-color: #556677; /* Muted button color */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em; /* Larger font for buttons */
+    transition: background-color 0.2s ease;
+    width: 100%; /* Make buttons take full width of the menu */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+#mobile-pause-menu button:active { /* Feedback on tap */
+    background-color: #445566;
+}
+
+/* Specific ID for mobile resume button if needed, but general button style above might be enough */
+/* #mobile-resume-button {} */
+
+/* END: NEW CSS FOR MOBILE PAUSE MENU */
+
+
+/* --- Portal Menu (No changes needed from original) --- */
+#portal-menu { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(20, 0, 30, 0.85); color: white; padding: 30px; border: 1px solid #aa88ff; border-radius: 10px; z-index: 10001; text-align: center; font-family: sans-serif; min-width: 300px; box-shadow: 0 0 20px rgba(204, 153, 255, 0.4); }
+#portal-menu h2 { margin-top: 0; color: #eeccff; }
+#portal-menu p { margin: 25px 0; line-height: 1.5; }
+#portal-menu .menu-buttons { display: flex; flex-direction: column; gap: 15px; }
+#portal-ready-button,
+#portal-back-button { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; transition: background-color 0.3s ease; color: white; }
+#portal-ready-button { background-color: #8844cc; }
+#portal-ready-button:hover { background-color: #a066e0; }
+#portal-back-button { background-color: #666666; }
+#portal-back-button:hover { background-color: #888888; }

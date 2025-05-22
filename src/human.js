@@ -1,3 +1,6 @@
+// src/human.js
+// DEBUG: Added logging to equip/unequip methods and updateRotation
+
 import * as THREE from 'three';
 import { Saber, LaserGun } from './inventory.js';
 
@@ -111,7 +114,7 @@ export class Human {
         this.rightFoot.position.set(bodyWidth / 4, -bodyHeight / 2 - (legHeight - footHeight) - footHeight / 2, 0);
 
         this.saber = new Saber();
-        this.saber.mesh.position.set(0, -0.1, 0.2);
+        this.saber.mesh.position.set(0, 0, 0.2);
         this.saber.mesh.rotation.set(-Math.PI, 0, 0);
         this.saber.mesh.scale.set(0.25, 0.25, 0.25);
         this.isSaberEquipped = false;
@@ -138,41 +141,43 @@ export class Human {
 
     equipSaber() {
         if (!this.isSaberEquipped) {
-            // Unequip laser gun if equipped
             if (this.isLaserGunEquipped) {
                 this.unequipLaserGun();
             }
-            // Add saber to left hand
+            console.log("Human: Adding saber mesh to left hand."); // Log action
             this.leftHand.add(this.saber.mesh);
             this.isSaberEquipped = true;
+            console.log("Human: leftHand children count:", this.leftHand.children.length); // Log children
         }
     }
 
     unequipSaber() {
         if (this.isSaberEquipped) {
-            // Remove saber from left hand
+            console.log("Human: Removing saber mesh from left hand."); // Log action
             this.leftHand.remove(this.saber.mesh);
             this.isSaberEquipped = false;
+            console.log("Human: leftHand children count:", this.leftHand.children.length); // Log children
         }
     }
 
     equipLaserGun() {
         if (!this.isLaserGunEquipped) {
-            // Unequip saber if equipped
             if (this.isSaberEquipped) {
                 this.unequipSaber();
             }
-            // Add laser gun to left hand
+            console.log("Human: Adding laser gun mesh to left hand."); // Log action
             this.leftHand.add(this.laserGun.mesh);
             this.isLaserGunEquipped = true;
+            console.log("Human: leftHand children count:", this.leftHand.children.length); // Log children
         }
     }
 
     unequipLaserGun() {
         if (this.isLaserGunEquipped) {
-            // Remove laser gun from left hand
+            console.log("Human: Removing laser gun mesh from left hand."); // Log action
             this.leftHand.remove(this.laserGun.mesh);
             this.isLaserGunEquipped = false;
+            console.log("Human: leftHand children count:", this.leftHand.children.length); // Log children
         }
     }
 
@@ -183,15 +188,22 @@ export class Human {
     updateRotation(yaw, pitch, applyPitch) {
         // Rotate the entire player model based on yaw
         this.mesh.rotation.set(0, yaw + Math.PI, 0);
+
+        let targetArmRotationX = 0; // Default rotation (down)
+
         // Adjust the left arm rotation based on pitch only if a weapon is equipped and in first-person view
         if (this.isSaberEquipped || this.isLaserGunEquipped) {
-            if (applyPitch) {
-                this.leftArmGroup.rotation.x = -Math.PI / 2 - pitch;
+            if (applyPitch) { // applyPitch is true if locked and weapon equipped
+                targetArmRotationX = -Math.PI / 2 - pitch; // Forward + pitch
             } else {
-                this.leftArmGroup.rotation.x = -Math.PI / 2;
+                // If weapon equipped but not locked? Keep arm forward? Or down? Let's keep forward for now.
+                targetArmRotationX = -Math.PI / 2; // Just forward
             }
-        } else {
-            this.leftArmGroup.rotation.x = 0;
         }
+        // Only log if the rotation changes significantly to avoid spamming console
+        if (Math.abs(this.leftArmGroup.rotation.x - targetArmRotationX) > 0.01) {
+             console.log(`Human updateRotation: Setting leftArmGroup.rotation.x to ${targetArmRotationX.toFixed(2)} (ApplyPitch=${applyPitch}, Saber=${this.isSaberEquipped}, Laser=${this.isLaserGunEquipped})`); // <<<--- ADDED LOG
+        }
+        this.leftArmGroup.rotation.x = targetArmRotationX;
     }
 }
