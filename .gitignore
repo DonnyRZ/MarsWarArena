@@ -1,23 +1,32 @@
 # Dependencies
-node_modules
+node_modules/
 
 # Build output
-dist # Important if using GitHub Actions
+dist/
+dist-ssr/
+*.local
 
-# Logs
+# Log files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Editor directories and files
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
 # Environment variables
 .env
-.env*.local
+.env.*
+!.env.example
 
-# IDE config
-.vscode # If you want to share VS Code settings, remove this line
-.idea
-
-# OS generated files
+# IDE/OS specific
 .DS_Store
 Thumbs.db
