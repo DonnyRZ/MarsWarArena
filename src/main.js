@@ -36,7 +36,7 @@ let radarDisplay;
 let radarManager;
 let playerHealthBarContainerElement, playerHealthBarFillElement, playerHealthTextElement;
 let mobileControls;
-let isMobile = false; // This will be set in init()
+let isMobile = false; 
 let mobileMenuButtonElement; 
 
 let world = null;
@@ -342,6 +342,8 @@ async function init() {
     clock = new THREE.Clock();
     stats = new Stats();
     document.body.appendChild(stats.dom);
+    stats.showPanel(0); // Start with FPS panel visible
+
     lightingSystem = new LightingSystem(scene);
     audioManager = new AudioManager();
     audioManager.loadSound('laser', 'public/sfx/laser.MP3');
@@ -385,14 +387,25 @@ async function init() {
         mobileMenuButtonElement.classList.add('hidden');
     }
 
+    // START: MODIFIED RADAR DISPLAY INITIALIZATION
+    const radarOptions = {
+        range: isMobile ? 40 : 60, // Smaller range for smaller mobile radar, PC keeps 60
+        edgeIndicatorRange: isMobile ? 50 : 75, // Adjusted edge indicator
+        playerColor: 'cyan',
+        martianColor: '#e74c3c', 
+        ghastColor: '#9b59b6', 
+        playerMarkerSize: isMobile ? 10 : 12, // Slightly smaller player marker on mobile
+        martianDotRadius: isMobile ? 3.0 : 3.5, // Slightly smaller dots on mobile
+        ghastMarkerSize: isMobile ? 6 : 7,      // Slightly smaller markers on mobile
+        edgeMarkerSize: isMobile ? 4 : 5,      // Slightly smaller edge markers
+        showRangeRing: true, 
+        rangeRingColor: 'rgba(50, 205, 50, 0.5)',
+        backgroundColor: 'rgba(10, 30, 10, 0.5)', 
+        worldEdgeColor: 'rgba(100, 100, 255, 0.3)'
+   };
+   radarDisplay = new RadarDisplay('radar-canvas', radarOptions);
+   // END: MODIFIED RADAR DISPLAY INITIALIZATION
 
-    radarDisplay = new RadarDisplay('radar-canvas', {
-         range: 60, edgeIndicatorRange: 75, playerColor: 'cyan',
-         martianColor: '#e74c3c', ghastColor: '#9b59b6', playerMarkerSize: 12,
-         martianDotRadius: 3.5, ghastMarkerSize: 7, edgeMarkerSize: 5,
-         showRangeRing: true, rangeRingColor: 'rgba(50, 205, 50, 0.5)',
-         backgroundColor: 'rgba(10, 30, 10, 0.5)', worldEdgeColor: 'rgba(100, 100, 255, 0.3)'
-    });
     if (!radarDisplay.ctx) { radarDisplay = null; console.error("Radar Display context failed to initialize."); }
 
     physics = new Physics(scene, []);
@@ -440,11 +453,12 @@ async function init() {
          camera.lookAt(initialPlayerPos);
      } else { console.warn("Could not set initial camera position."); }
 
-    renderer.setAnimationLoop(animate); // This line was present in init() in your HEAD version
+    renderer.setAnimationLoop(animate);
     console.log("Initialization Complete. Game State:", gameStateManager.gameState);
 }
 
 // --- Creature Spawning ---
+// ... (spawnMartians and spawnGhasts remain unchanged)
 function spawnMartians() {
     if (gameStateManager.gameState !== 'MARTIAN_HUNT' || !world || !physics || !world.params) return;
     const numMartians = 10;
@@ -474,7 +488,9 @@ function spawnGhasts() {
     console.log(`Spawned ${activeGhasts.length} Ghasts.`);
 }
 
+
 // --- Event Listeners Setup ---
+// ... (setupEventListeners remains unchanged from the previous version where updateMobileUIVisibility was integrated)
 function setupEventListeners() {
      window.addEventListener('resize', () => {
          if (camera && renderer) {
@@ -587,8 +603,9 @@ function setupEventListeners() {
 
 
 // --- Animation Loop ---
+// ... (animate function remains unchanged from the previous version where updateMobileUIVisibility was integrated)
 async function animate() {
-     if (!clock || !renderer || !scene || !camera || !stats || !physics || !player || !menu || !portalMenu || !timerDisplayElement || !timerValueElement || !gameStateManager || !entityManager || !martianCountDisplayElement || !martianCountValueElement || !playerHealthBarContainerElement || !playerHealthBarFillElement || !playerHealthTextElement ) {
+    if (!clock || !renderer || !scene || !camera || !stats || !physics || !player || !menu || !portalMenu || !timerDisplayElement || !timerValueElement || !gameStateManager || !entityManager || !martianCountDisplayElement || !martianCountValueElement || !playerHealthBarContainerElement || !playerHealthBarFillElement || !playerHealthTextElement ) {
         console.error("Essential component missing in animate loop. Aborting.");
         return;
      }

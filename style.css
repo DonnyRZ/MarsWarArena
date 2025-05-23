@@ -24,42 +24,51 @@ body {
 /* --- Styles for the HUD Container (Timer & Martian Count) --- */
 #hud-top-center {
     position: fixed;
-    top: 20px;
+    top: 20px; /* Default PC top padding */
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 25px;
-    z-index: 999; /* Z-index for HUD elements */
+    gap: 25px; /* Default PC gap */
+    z-index: 999; 
     align-items: center;
     pointer-events: none;
 }
 
 #timer-display {
-    /* Inherits from .game-ui if class is applied */
-    color: #ff6666; font-size: 1.2em; border: 1px solid #ff6666;
-    box-shadow: 0 0 8px rgba(255, 102, 102, 0.5); text-align: left;
-    /* Ensure these are present if not using .game-ui class on it in HTML */
-    background-color: rgba(0, 0, 0, 0.7); padding: 8px 15px; border-radius: 5px;
-    font-family: 'Consolas', 'Courier New', monospace; font-weight: bold;
+    color: #ff6666; 
+    font-size: 1.2em; /* Default PC font size */
+    border: 1px solid #ff6666;
+    box-shadow: 0 0 8px rgba(255, 102, 102, 0.5); 
+    text-align: left;
+    background-color: rgba(0, 0, 0, 0.7); 
+    padding: 8px 15px; /* Default PC padding */
+    border-radius: 5px;
+    font-family: 'Consolas', 'Courier New', monospace; 
+    font-weight: bold;
 }
 #timer-display span { color: #ffdddd; min-width: 3em; display: inline-block; text-align: right; }
 
 #martian-count-display {
-    /* Inherits from .game-ui if class is applied in HTML */
-    color: #66ff66; font-size: 1.1em; border: 1px solid #66ff66;
-    box-shadow: 0 0 8px rgba(102, 255, 102, 0.5); text-align: left;
-    /* Ensure these are present if not using .game-ui class on it in HTML */
-    background-color: rgba(0, 0, 0, 0.7); padding: 8px 15px; border-radius: 5px;
-    font-family: 'Consolas', 'Courier New', monospace; font-weight: bold;
+    color: #66ff66; 
+    font-size: 1.1em; /* Default PC font size */
+    border: 1px solid #66ff66;
+    box-shadow: 0 0 8px rgba(102, 255, 102, 0.5); 
+    text-align: left;
+    background-color: rgba(0, 0, 0, 0.7); 
+    padding: 8px 15px; /* Default PC padding */
+    border-radius: 5px;
+    font-family: 'Consolas', 'Courier New', monospace; 
+    font-weight: bold;
 }
 #martian-count-display span { color: #ccffcc; min-width: 2em; display: inline-block; text-align: right; }
 
 /* --- Styles for the Radar Canvas --- */
+/* Default PC Radar Styles */
 #radar-canvas {
     position: fixed;
-    top: 20px;
-    left: 20px;
-    width: 150px;
+    top: 20px;    
+    left: 20px;   
+    width: 150px; 
     height: 150px;
     background-color: rgba(0, 20, 0, 0.4);
     border: 2px solid rgba(0, 255, 0, 0.6);
@@ -69,13 +78,43 @@ body {
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
 }
 
+/* Mobile-Specific Radar Styles */
+body.is-mobile #radar-canvas {
+    width: 100px; 
+    height: 100px;
+    top: 10px;     
+    left: 10px;    
+}
+
+
+/* START: MOBILE-SPECIFIC STATS.JS (FPS COUNTER) STYLES */
+/*
+  Stats.js injects its DOM element with inline styles for position.
+  We target it based on those typical inline styles.
+  Alternatively, you can assign an ID to `stats.domElement` in main.js
+  (e.g., `stats.domElement.id = 'fps-stats-panel';`)
+  and then target `body.is-mobile #fps-stats-panel`.
+  The selector below is a common way to catch it without modifying main.js for this.
+  Adjust if stats.js changes its default styling.
+  It also typically has a z-index of 10000 set via JS.
+*/
+body.is-mobile div[style*="position: fixed"][style*="left: 0px"][style*="top: 0px"] {
+    transform: scale(0.65) !important; /* Scale it down significantly */
+    transform-origin: top left !important; /* Scale from the top-left corner */
+    /* Optional: Adjust position slightly after scaling if needed */
+    /* top: 5px !important; */
+    /* left: 5px !important; */
+    /* Ensure it doesn't block touches on other elements if it overlaps */
+    pointer-events: none !important;
+}
+/* END: MOBILE-SPECIFIC STATS.JS STYLES */
+
+
 /* --- Styles for the Player Health Bar --- */
 #player-health-bar-container {
-    /* Inherits from .game-ui if class is applied in HTML */
     position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
     width: 250px; height: 22px; background-color: #444; border: 1px solid #222;
-    padding: 2px; z-index: 999; /* Same as other top/bottom HUD */
-    /* Ensure these are present if not using .game-ui class on it in HTML */
+    padding: 2px; z-index: 999; 
     border-radius: 5px; font-family: 'Consolas', 'Courier New', monospace; font-weight: bold;
     box-sizing: border-box;
 }
@@ -91,70 +130,52 @@ body {
 
 
 /* --- Styles for Mobile Controls --- */
-#mobile-controls-overlay {
-    /* JS sets position:fixed, left,top,width,height, z-index */
-    /* pointer-events: none; is set by JS, allowing children to override */
-    /* This overlay is mainly a container for absolute positioning of its children. */
-}
+#mobile-controls-overlay {}
 
-/* Common class for elements that should receive touch events within the overlay */
 .mobile-control-element {
-    pointer-events: auto !important; /* Crucial: Allow touches on these specific elements */
-    position: absolute; /* Most controls will be absolutely positioned within the overlay */
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.15); /* Visual feedback for tap */
+    pointer-events: auto !important; 
+    position: absolute; 
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.15); 
     box-sizing: border-box;
-    user-select: none; /* Prevent text selection on buttons/joystick */
+    user-select: none; 
     -webkit-user-select: none;
 }
 
 #mobile-look-area {
-    /* This area allows looking around by dragging. */
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%; /* Or specify a region, e.g., right 50% */
-    height: 100%; /* Or specify a region */
-    /* pointer-events: auto; is set by .mobile-control-element if you add that class */
-    /* OR set it directly if not using the common class: */
+    width: 100%; 
+    height: 100%; 
     pointer-events: auto;
-    /* background-color: rgba(0, 0, 255, 0.03); /* For debugging visibility - REMOVE FOR PRODUCTION */
-    z-index: 1001; /* Below explicit buttons/joystick if they need to be on top */
+    z-index: 1001; 
 }
 
 #mobile-joystick-base {
-    /* JS sets width, height, borderRadius, backgroundColor */
-    /* Example positioning: bottom-left */
     left: 40px;
     bottom: 40px;
     border: 3px solid rgba(255, 255, 255, 0.25);
     box-shadow: 0px 0px 12px rgba(0,0,0,0.4);
-    z-index: 1002; /* Above look area */
+    z-index: 1002; 
 }
 
 #mobile-joystick-knob {
-    /* JS sets width, height, borderRadius, backgroundColor, initial position (left/top for centering) */
     border: 2px solid rgba(40,40,40,0.6);
     box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
-    /* transform set by JS for movement */
 }
 
 .mobile-action-button {
-    /* JS sets width, height, backgroundColor, borderRadius, display, alignItems, justifyContent, color, fontSize */
-    /* Common styling for all action buttons */
     border: 3px solid rgba(255, 255, 255, 0.25);
     box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
     font-weight: bold;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.9) !important; /* Ensure text is visible */
+    color: rgba(255,255,255,0.9) !important; 
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    /* z-index needs to be higher than #mobile-look-area if they overlap */
-    z-index: 1002; /* Above look area */
-    /* Default width and height, JS options will override if set */
+    z-index: 1002; 
     width: 70px;
     height: 70px;
 }
 
-/* Specific positions for action buttons (2x2 Grid) */
 #mobile-jump-button {
     right: 30px;
     bottom: 30px;
@@ -175,20 +196,20 @@ body {
 
 #mobile-menu-button {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 70px;
-    height: 50px;
+    top: 10px; 
+    right: 10px;
+    width: 60px; 
+    height: 40px;
     background-color: rgba(100, 100, 100, 0.4);
-    border-radius: 8px;
+    border-radius: 6px; 
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 14px;
+    font-size: 12px; 
     font-weight: bold;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0px 0px 8px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15); 
+    box-shadow: 0px 0px 6px rgba(0,0,0,0.25); 
     z-index: 1002;
     pointer-events: auto;
     user-select: none;
@@ -217,7 +238,7 @@ body {
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    z-index: 10001; /* Higher than game controls */
+    z-index: 10001; 
     text-align: center;
     font-family: sans-serif;
     min-width: 350px;
@@ -231,7 +252,7 @@ body {
     margin: 10px 0;
     line-height: 1.4;
 }
-#resume-button { /* PC Resume Button */
+#resume-button { 
     padding: 10px 20px;
     background-color: #4CAF50;
     color: white;
@@ -246,60 +267,51 @@ body {
     background-color: #45a049;
 }
 
-/* START: NEW CSS FOR MOBILE PAUSE MENU */
+/* --- Mobile Pause Menu --- */
 #mobile-pause-menu {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(20, 20, 40, 0.9); /* Slightly different background for mobile if desired */
+    background-color: rgba(20, 20, 40, 0.9); 
     color: white;
-    padding: 25px; /* Slightly more padding */
-    border: 1px solid #778899; /* Slate gray border */
+    padding: 25px; 
+    border: 1px solid #778899; 
     border-radius: 12px;
-    z-index: 10001; /* Same as PC menu, ensures it's on top */
+    z-index: 10001; 
     text-align: center;
-    font-family: Arial, Helvetica, sans-serif; /* Simple sans-serif font */
-    width: 80vw; /* Take up more screen width */
-    max-width: 320px; /* But not too wide on tablets */
+    font-family: Arial, Helvetica, sans-serif; 
+    width: 80vw; 
+    max-width: 320px; 
     box-shadow: 0 0 20px rgba(100, 100, 150, 0.5);
-    display: flex; /* Use flexbox for easier button stacking */
+    display: flex; 
     flex-direction: column;
-    gap: 20px; /* Space between title and buttons */
+    gap: 20px; 
 }
-
 #mobile-pause-menu h2 {
     margin-top: 0;
-    margin-bottom: 10px; /* Less space after title */
-    color: #ddeeff; /* Light blue title */
-    font-size: 1.8em; /* Larger title for mobile */
+    margin-bottom: 10px; 
+    color: #ddeeff; 
+    font-size: 1.8em; 
 }
-
-/* Styling for buttons inside the mobile pause menu */
 #mobile-pause-menu button {
-    padding: 15px 20px; /* Larger padding for bigger tap targets */
-    background-color: #556677; /* Muted button color */
+    padding: 15px 20px; 
+    background-color: #556677; 
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 1.1em; /* Larger font for buttons */
+    font-size: 1.1em; 
     transition: background-color 0.2s ease;
-    width: 100%; /* Make buttons take full width of the menu */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    width: 100%; 
+    box-sizing: border-box; 
 }
-
-#mobile-pause-menu button:active { /* Feedback on tap */
+#mobile-pause-menu button:active { 
     background-color: #445566;
 }
 
-/* Specific ID for mobile resume button if needed, but general button style above might be enough */
-/* #mobile-resume-button {} */
 
-/* END: NEW CSS FOR MOBILE PAUSE MENU */
-
-
-/* --- Portal Menu (No changes needed from original) --- */
+/* --- Portal Menu --- */
 #portal-menu { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(20, 0, 30, 0.85); color: white; padding: 30px; border: 1px solid #aa88ff; border-radius: 10px; z-index: 10001; text-align: center; font-family: sans-serif; min-width: 300px; box-shadow: 0 0 20px rgba(204, 153, 255, 0.4); }
 #portal-menu h2 { margin-top: 0; color: #eeccff; }
 #portal-menu p { margin: 25px 0; line-height: 1.5; }
