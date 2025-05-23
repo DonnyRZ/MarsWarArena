@@ -332,8 +332,6 @@ async function init() {
     } else {
         console.log("Desktop device detected.");
     }
-    // window.isMobile = isMobile; // Make it globally accessible if Menu.js needs it directly.
-                                // We are passing it to Menu constructor instead.
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -350,7 +348,6 @@ async function init() {
     audioManager.loadSound('impact_martian', 'public/sfx/impact_martian.MP3');
     gameStateManager = new GameStateManager();
     
-    // <<< MODIFIED: Pass isMobile to the Menu constructor
     menu = new Menu(updateMobileUIVisibility, isMobile); 
     
     portalMenu = new PortalMenu(
@@ -443,12 +440,11 @@ async function init() {
          camera.lookAt(initialPlayerPos);
      } else { console.warn("Could not set initial camera position."); }
 
-    renderer.setAnimationLoop(animate);
+    renderer.setAnimationLoop(animate); // This line was present in init() in your HEAD version
     console.log("Initialization Complete. Game State:", gameStateManager.gameState);
 }
 
 // --- Creature Spawning ---
-// ... (spawnMartians and spawnGhasts remain unchanged)
 function spawnMartians() {
     if (gameStateManager.gameState !== 'MARTIAN_HUNT' || !world || !physics || !world.params) return;
     const numMartians = 10;
@@ -481,7 +477,6 @@ function spawnGhasts() {
 // --- Event Listeners Setup ---
 function setupEventListeners() {
      window.addEventListener('resize', () => {
-         // ... (resize logic unchanged)
          if (camera && renderer) {
              camera.aspect = window.innerWidth / window.innerHeight;
              camera.updateProjectionMatrix();
@@ -516,7 +511,7 @@ function setupEventListeners() {
             event.preventDefault(); 
             event.stopPropagation(); 
             if (menu) { 
-                menu.toggle(); // This will now trigger updateMobileUIVisibility via its callback
+                menu.toggle(); 
             }
         }, { passive: false });
     }
@@ -524,7 +519,7 @@ function setupEventListeners() {
      window.addEventListener('keydown', (event) => {
          if (event.key === 'm' || event.key === 'M') {
              if (portalMenu && !portalMenu.isOpen()) { 
-                 menu.toggle(); // This will now trigger updateMobileUIVisibility via its callback
+                 menu.toggle(); 
                  
                  if (menu.isOpen()) {
                      if (player && player.controls && player.controls.isLocked) {
@@ -593,7 +588,6 @@ function setupEventListeners() {
 
 // --- Animation Loop ---
 async function animate() {
-    // ... (initial guard clauses remain the same)
      if (!clock || !renderer || !scene || !camera || !stats || !physics || !player || !menu || !portalMenu || !timerDisplayElement || !timerValueElement || !gameStateManager || !entityManager || !martianCountDisplayElement || !martianCountValueElement || !playerHealthBarContainerElement || !playerHealthBarFillElement || !playerHealthTextElement ) {
         console.error("Essential component missing in animate loop. Aborting.");
         return;
@@ -619,17 +613,13 @@ async function animate() {
         return;
     }
     
-    // Check if any menu is open or player is dead *before* processing game logic
     if (menu.isOpen() || portalMenu.isOpen() || (player && player.isDead)) {
-        // Player movement should be halted
         if (player && player.velocity) {
              player.velocity.x = 0; player.velocity.z = 0;
              if (!player.gravityEnabled || player.onGround) { player.velocity.y = 0; }
          }
          if (player) { player.isLaserBeamActive = false; player.laserBeamDurationTimer = 0; }
-        // updateMobileUIVisibility() is called by menu/portal opening/closing logic
     } else {
-        // This block runs only if no menus are open and player is alive
         if (player) player.handleActionInputs();
         const wasOnGround = player.onGround;
         physics.step(deltaTime, player, world);
@@ -653,7 +643,6 @@ async function animate() {
             player.updateLaserBeam(deltaTime);
         }
 
-        // Camera Update Logic
         if (isMobile && mobileControls && mobileControls.isVisible && player.inputHandler && camera && player.human) {
             if (player.inputHandler.lookDeltaX !== 0 || player.inputHandler.lookDeltaY !== 0) {
                 _cameraEuler.setFromQuaternion(camera.quaternion);
@@ -673,7 +662,7 @@ async function animate() {
             const camInfo = player.getCameraInfo();
             player.updateModelVisibility(camInfo.mode);
             pov.update(camInfo, crosshair);
-        } else if (player && pov) { // Third person, not locked, not mobile active looking
+        } else if (player && pov) { 
             const camInfo = player.getCameraInfo();
             player.updateModelVisibility(camInfo.mode);
             pov.update(camInfo, crosshair);
