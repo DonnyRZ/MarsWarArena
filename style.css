@@ -17,18 +17,17 @@ body {
     font-family: 'Consolas', 'Courier New', monospace;
     font-weight: bold;
     box-sizing: border-box;
-    /* Specific positioning (fixed, absolute) should be on the elements themselves or their containers */
 }
 
 
 /* --- Styles for the HUD Container (Timer & Martian Count) --- */
 #hud-top-center {
     position: fixed;
-    top: 20px; /* Default PC top padding */
+    top: 20px; 
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 25px; /* Default PC gap */
+    gap: 25px; 
     z-index: 999; 
     align-items: center;
     pointer-events: none;
@@ -36,12 +35,12 @@ body {
 
 #timer-display {
     color: #ff6666; 
-    font-size: 1.2em; /* Default PC font size */
+    font-size: 1.2em; 
     border: 1px solid #ff6666;
     box-shadow: 0 0 8px rgba(255, 102, 102, 0.5); 
     text-align: left;
     background-color: rgba(0, 0, 0, 0.7); 
-    padding: 8px 15px; /* Default PC padding */
+    padding: 8px 15px; 
     border-radius: 5px;
     font-family: 'Consolas', 'Courier New', monospace; 
     font-weight: bold;
@@ -50,12 +49,12 @@ body {
 
 #martian-count-display {
     color: #66ff66; 
-    font-size: 1.1em; /* Default PC font size */
+    font-size: 1.1em; 
     border: 1px solid #66ff66;
     box-shadow: 0 0 8px rgba(102, 255, 102, 0.5); 
     text-align: left;
     background-color: rgba(0, 0, 0, 0.7); 
-    padding: 8px 15px; /* Default PC padding */
+    padding: 8px 15px; 
     border-radius: 5px;
     font-family: 'Consolas', 'Courier New', monospace; 
     font-weight: bold;
@@ -87,27 +86,12 @@ body.is-mobile #radar-canvas {
 }
 
 
-/* START: MOBILE-SPECIFIC STATS.JS (FPS COUNTER) STYLES */
-/*
-  Stats.js injects its DOM element with inline styles for position.
-  We target it based on those typical inline styles.
-  Alternatively, you can assign an ID to `stats.domElement` in main.js
-  (e.g., `stats.domElement.id = 'fps-stats-panel';`)
-  and then target `body.is-mobile #fps-stats-panel`.
-  The selector below is a common way to catch it without modifying main.js for this.
-  Adjust if stats.js changes its default styling.
-  It also typically has a z-index of 10000 set via JS.
-*/
+/* Mobile-Specific Stats.js (FPS Counter) Styles */
 body.is-mobile div[style*="position: fixed"][style*="left: 0px"][style*="top: 0px"] {
-    transform: scale(0.65) !important; /* Scale it down significantly */
-    transform-origin: top left !important; /* Scale from the top-left corner */
-    /* Optional: Adjust position slightly after scaling if needed */
-    /* top: 5px !important; */
-    /* left: 5px !important; */
-    /* Ensure it doesn't block touches on other elements if it overlaps */
+    transform: scale(0.65) !important; 
+    transform-origin: top left !important; 
     pointer-events: none !important;
 }
-/* END: MOBILE-SPECIFIC STATS.JS STYLES */
 
 
 /* --- Styles for the Player Health Bar --- */
@@ -151,13 +135,17 @@ body.is-mobile div[style*="position: fixed"][style*="left: 0px"][style*="top: 0p
     z-index: 1001; 
 }
 
+/* START: MODIFIED JOYSTICK POSITION */
 #mobile-joystick-base {
-    left: 40px;
-    bottom: 40px;
+    left: 50px;   /* Adjusted: Further left, closer to corner */
+    bottom: -100px; /* Adjusted: Further down, closer to corner */
+    /* Other styles like border, box-shadow, z-index remain from previous */
     border: 3px solid rgba(255, 255, 255, 0.25);
     box-shadow: 0px 0px 12px rgba(0,0,0,0.4);
     z-index: 1002; 
+    /* JS will set width, height, borderRadius, backgroundColor based on options */
 }
+/* END: MODIFIED JOYSTICK POSITION */
 
 #mobile-joystick-knob {
     border: 2px solid rgba(40,40,40,0.6);
@@ -172,26 +160,36 @@ body.is-mobile div[style*="position: fixed"][style*="left: 0px"][style*="top: 0p
     color: rgba(255,255,255,0.9) !important; 
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     z-index: 1002; 
-    width: 70px;
-    height: 70px;
+    width: 70px; /* Default, JS options will override */
+    height: 70px;/* Default, JS options will override */
 }
 
+/* START: MODIFIED POSITIONS FOR ACTION BUTTONS (2x2 Grid) */
+/* Assuming buttonSize = 70px, gap = 15px, edgePadding = 20px */
+/* JMP - Bottom-Right-Most */
 #mobile-jump-button {
-    right: 30px;
-    bottom: 30px;
+    right: -300px;  /* Adjusted: Padding from right screen edge */
+    bottom: -100px; /* Adjusted: Padding from bottom screen edge */
 }
+
+/* ATK (your #mobile-shoot-button) - To the left of JMP */
 #mobile-shoot-button {
-    right: calc(30px + 70px + 15px); 
-    bottom: 30px; 
+    right: calc(-300px + 70px + 15px); /* edgePadding + buttonSize + gap */
+    bottom: -100px;                    /* Same bottom alignment as JMP */
 }
+
+/* W1 - Above JMP */
 #mobile-weapon1-button {
-    right: 30px; 
-    bottom: calc(30px + 70px + 15px);
+    right: -300px;                     /* Same right alignment as JMP */
+    bottom: calc(-100px + 70px + 15px);/* edgePadding + buttonSize + gap */
 }
+
+/* W2 - Above ATK (and to the left of W1) */
 #mobile-weapon2-button {
-    right: calc(30px + 70px + 15px); 
-    bottom: calc(30px + 70px + 15px);
+    right: calc(-300px + 70px + 15px); /* Same right alignment as ATK */
+    bottom: calc(-100px + 70px + 15px);/* Same bottom alignment as W1 */
 }
+/* END: MODIFIED POSITIONS FOR ACTION BUTTONS */
 
 
 #mobile-menu-button {
